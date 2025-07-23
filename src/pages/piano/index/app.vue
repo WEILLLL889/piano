@@ -38,7 +38,7 @@ export default {
     // 监听store中background的变化
     '$store.state.background'(newBackground) {
       console.log('检测到背景变化:', newBackground); // 调试用
-      this.applyBackground(newBackground || 'pianobg.jpg');
+      this.applyBackground(newBackground || 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1920');
     }
   },
   methods: {
@@ -50,11 +50,11 @@ export default {
     applyBackground(backgroundName) {
       try {
         document.body.style.background = '';
-        if (backgroundName.startsWith('data:image')) {
-          // 自定义上传的图片
+        if (backgroundName.startsWith('data:image') || backgroundName.startsWith('http')) {
+          // 自定义上传的图片或网络图片
           document.body.style.backgroundImage = `url(${backgroundName})`;
         } else {
-          // 预设的背景图片
+          // 预设的本地背景图片
           document.body.style.backgroundImage = `url(${require(`@/assets/${backgroundName}`)})`;
         }
         document.body.style.backgroundSize = 'cover';
