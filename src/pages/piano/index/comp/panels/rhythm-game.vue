@@ -969,23 +969,23 @@
         animation: `fall ${animationDuration}s linear ${animationDelay}s forwards`,
       };
     },      showFeedback(type) {
-        // 清除之前的计时器
         if (this.feedbackTimeout) {
           clearTimeout(this.feedbackTimeout);
         }
         
-        // 设置反馈文本
         const feedbackTexts = {
           'perfect': 'PERFECT!',
           'good': 'GOOD!',
           'miss': 'MISS!'
         };
         
-        this.currentFeedback = feedbackTexts[type] || type.toUpperCase();
+        const newFeedback = feedbackTexts[type] || type.toUpperCase();
         
-        // 立即显示反馈，无延迟
+        // 强制重新渲染以重新触发动画
+        this.currentFeedback = ''; 
+        
         this.$nextTick(() => {
-          // 设置新的计时器来隐藏反馈
+          this.currentFeedback = newFeedback;
           this.feedbackTimeout = setTimeout(() => {
             this.currentFeedback = '';
           }, 1200); // 显示1.2秒
@@ -1297,7 +1297,9 @@
   },
   computed: {
     feedbackClass() {
-      return this.currentFeedback;
+      if (!this.currentFeedback) return '';
+      // 从 'PERFECT!' 中提取 'PERFECT' 作为类名
+      return this.currentFeedback.slice(0, -1);
     },
     gameStatusText() {
       if (!this.gameStarted) {
@@ -1731,36 +1733,40 @@
           }
         }        .feedback-display {
           position: absolute;
-          top: 50%;
+          top: 35%; /* 上移，更突出 */
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 3.5em;
-          font-weight: bold;
-          text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+          font-family: 'Impact', 'Arial Black', sans-serif; /* 使用更有冲击力的字体 */
+          font-size: 6em; /* 显著增大字体 */
+          font-weight: 900;
           opacity: 0;
-          transition: all 0.2s ease-out;
+          transition: opacity 0.3s ease-out; /* 平滑消失 */
           z-index: 100;
           pointer-events: none;
+          -webkit-font-smoothing: antialiased;
           
           &.PERFECT {
-            color: #FFD700;
+            color: #ffc700;
+            -webkit-text-stroke: 3px #8c6d00; /* 更粗的描边 */
+            text-shadow: 4px 4px 0px #8c6d00, 0 0 25px rgba(255, 199, 0, 0.8);
             opacity: 1;
-            text-shadow: 0 0 30px #FFD700, 0 0 60px #FFD700, 3px 3px 6px rgba(0,0,0,0.8);
-            animation: perfectBounce 0.8s ease-out;
+            animation: feedback-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
           }
           
           &.GOOD {
-            color: #32CD32;
+            color: #76ff03;
+            -webkit-text-stroke: 2px #33691e;
+            text-shadow: 3px 3px 0px #33691e, 0 0 20px rgba(118, 255, 3, 0.7);
             opacity: 1;
-            text-shadow: 0 0 20px #32CD32, 0 0 40px #32CD32, 3px 3px 6px rgba(0,0,0,0.8);
-            animation: goodSlide 0.6s ease-out;
+            animation: feedback-pop 0.5s ease-out forwards;
           }
           
           &.MISS {
-            color: #FF4444;
+            color: #9e9e9e;
+            -webkit-text-stroke: 2px #424242;
+            text-shadow: 2px 2px 0px #424242;
             opacity: 1;
-            text-shadow: 0 0 20px #FF4444, 0 0 40px #FF4444, 3px 3px 6px rgba(0,0,0,0.8);
-            animation: missShake 0.6s ease-out;
+            animation: feedback-shake 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
           }
         }
 
@@ -2102,12 +2108,12 @@
       }
     }
 
-    @keyframes feedbackPulse {
+    @keyframes feedback-pop {
       0% {
-        transform: translate(-50%, -50%) scale(0.5);
+        transform: translate(-50%, -50%) scale(0.2);
         opacity: 0;
       }
-      50% {
+      60% {
         transform: translate(-50%, -50%) scale(1.2);
         opacity: 1;
       }
@@ -2117,46 +2123,15 @@
       }
     }
 
-    @keyframes perfectBounce {
-      0% {
-        transform: translate(-50%, -50%) scale(0.3) rotate(-10deg);
-        opacity: 0;
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(1.3) rotate(5deg);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
-        opacity: 1;
-      }
-    }
-
-    @keyframes goodSlide {
-      0% {
-        transform: translate(-50%, -50%) translateY(-30px) scale(0.5);
-        opacity: 0;
-      }
-      50% {
-        transform: translate(-50%, -50%) translateY(10px) scale(1.1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(-50%, -50%) translateY(0) scale(1);
-        opacity: 1;
-      }
-    }
-
-    @keyframes missShake {
+    @keyframes feedback-shake {
       0%, 100% {
-        transform: translate(-50%, -50%) translateX(0) scale(1);
-        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg);
       }
-      25% {
-        transform: translate(-50%, -50%) translateX(-10px) scale(1.1);
+      10%, 30%, 50%, 70%, 90% {
+        transform: translate(-50%, -50%) rotate(3deg);
       }
-      75% {
-        transform: translate(-50%, -50%) translateX(10px) scale(1.1);
+      20%, 40%, 60%, 80% {
+        transform: translate(-50%, -50%) rotate(-3deg);
       }
     }
       // 响应式设计
