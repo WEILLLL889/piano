@@ -25,12 +25,12 @@
 
 1.  **克隆仓库**
     ```bash
-    git clone https://github.com/your-username/webpage-piano.git
+    git clone https://github.com/WEILLLL889/piano.git
     ```
 
 2.  **进入项目目录**
     ```bash
-    cd webpage-piano
+    cd piano
     ```
 
 3.  **安装依赖**
